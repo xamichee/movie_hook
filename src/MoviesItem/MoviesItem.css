@@ -1,0 +1,80 @@
+.card {
+    display: flex;
+    box-shadow: 2px 3px 8px #D9D9D9;
+}
+
+.movieInfo {
+    margin: 12px 9px 2px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.movieTitle {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 7px;
+}
+
+.movieTitle span {
+    font-size: 20px;
+    line-height: 26px;
+}
+
+.movieRating {
+    flex-basis: 30px;
+    flex-shrink: 0;
+    min-height: 30px;
+    max-height: 30px;
+    border: solid 2px #E9D100;
+    border-radius: 50%;
+}
+
+.movieRating p {
+    font-size: 12px;
+    line-height: 25px;
+    text-align: center;
+    margin: 0;
+}
+
+.date {
+    font-size: 12px;
+    color: #827E7E;
+    margin-bottom: 7px;
+}
+
+.movieGenres {
+    margin-bottom: 10px;
+}
+
+.movieSinops {
+    max-height: 130px;
+}
+
+.movieSinops span {
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+    overflow-y: hidden;
+}
+
+.movieInfo .stars {
+    max-width: 240px;
+    margin-top: auto;
+}
+
+svg {
+    width: 0.75em;
+    height: 0.75em;
+}
+
+.genre {
+    font-size: 10px;
+    color: rgba(0, 0, 0, 0.65);
+    padding: 4px;
+    border: solid 1px #D9D9D9;
+    border-radius: 2px;
+    margin-right: 8px;
+    margin-bottom: 4px;
+    background-color: #FAFAFA;
+}

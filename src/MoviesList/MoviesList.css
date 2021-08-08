@@ -1,0 +1,6 @@
+.movieslist {
+    margin: 34px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 35px;
+}

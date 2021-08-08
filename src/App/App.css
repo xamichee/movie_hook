@@ -1,0 +1,23 @@
+.wrapper {
+    width: 1010px;
+    margin: 0 auto;
+    padding: 36px;
+    background-color: #fff;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.paginator {
+    display: flex;
+    justify-content: center;
+}
+
+.alert {
+    margin-top: 20px;
+}
+
+.spin {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
