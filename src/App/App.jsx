@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Pagination, Alert, Spin } from 'antd';
-import getGenres from './getGenres';
 
 import Header from '../Header/Header';
 import MoviesList from '../MoviesList/MoviesList';
 import Search from '../Search/Search';
+import GenresContext from "./GenresContext";
 
 import 'antd/dist/antd.css';
 import './App.css';
@@ -17,6 +17,8 @@ function App() {
   const [totalResults, setTotalResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [genres, setGenres] = useState([]);
+
 
   const apiBase = 'https://api.themoviedb.org/3/';
   const apiKey = '382c03696044ec7006f5212f1c181827';
@@ -45,6 +47,14 @@ function App() {
   };
 
   useEffect(() => {
+    fetch(`${apiBase}genre/movie/list?api_key=${apiKey}&language=en-US`)
+      .then(res => res.json())
+      .then(obj => setGenres(obj.genres)
+      );
+  }, [])
+
+
+  useEffect(() => {
     if (searchString) {
       try {
         fetch(
@@ -63,7 +73,6 @@ function App() {
   }, [searchString, activePage, searchPage]);
 
   const list = activePage % 2 === 0 ? [...movieListFull.slice(10)] : [...movieListFull.slice(0, 10)];
-  const genres = getGenres();
 
   const showError = (
     <Alert
@@ -80,7 +89,10 @@ function App() {
     </div>
   ) : (
     <div>
-      <MoviesList movieList={list} genres={genres} />
+      <GenresContext.Provider value={genres}>
+        <MoviesList movieList={list} />
+      </GenresContext.Provider>
+
       <div className="paginator">
         <Pagination current={activePage} total={totalResults} onChange={pageClick} showSizeChanger={false} />
       </div>

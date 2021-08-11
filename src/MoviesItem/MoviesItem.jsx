@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from "react";
 import PropTypes from 'prop-types';
 
 import { Rate, Spin } from 'antd';
 import { format } from 'date-fns';
 
 import './MoviesItem.css';
+import GenresContext from "../App/GenresContext";
 
 function MoviesItem(props) {
   const { movie } = props;
@@ -37,27 +38,8 @@ function MoviesItem(props) {
     }).isRequired,
   };
 
-  const allGenres = [
-    { id: 28, name: 'Action' },
-    { id: 12, name: 'Adventure' },
-    { id: 16, name: 'Animation' },
-    { id: 35, name: 'Comedy' },
-    { id: 80, name: 'Crime' },
-    { id: 99, name: 'Documentary' },
-    { id: 18, name: 'Drama' },
-    { id: 10751, name: 'Family' },
-    { id: 14, name: 'Fantasy' },
-    { id: 36, name: 'History' },
-    { id: 27, name: 'Horror' },
-    { id: 10402, name: 'Music' },
-    { id: 9648, name: 'Mystery' },
-    { id: 10749, name: 'Romance' },
-    { id: 878, name: 'Science Fiction' },
-    { id: 10770, name: 'TV Movie' },
-    { id: 53, name: 'Thriller' },
-    { id: 10752, name: 'War' },
-    { id: 37, name: 'Western' },
-  ];
+  const allGenres = useContext(GenresContext);
+
   const genresToShow = genre.map((item) => (
     <span className="genre" key={item}>
       {allGenres.find((elem) => elem.id === item).name}
@@ -80,7 +62,7 @@ function MoviesItem(props) {
         <div className="date">
           <span>{date}</span>
         </div>
-        <div className="movieGenres">{genresToShow}</div>
+         <div className="movieGenres">{genresToShow}</div>
         <div className="movieSinops">
           <span>{overview}</span>
         </div>
