@@ -1,12 +1,12 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { Rate, Spin } from 'antd';
 import { format } from 'date-fns';
 
 import './MoviesItem.css';
-import GenresContext from "../App/GenresContext";
-import voteColor from "./voteColor";
+import GenresContext from '../App/GenresContext';
+import voteColor from './voteColor';
 
 function MoviesItem(props) {
   const { movie, rateMovie, active } = props;
@@ -24,8 +24,9 @@ function MoviesItem(props) {
     genre_ids: genre,
   } = movie;
 
-  const poster = posterPath ? `https://image.tmdb.org/t/p/w200${posterPath}`
-    : "https://apps.alldbx.de/images/default_person.1d043.png";
+  const poster = posterPath
+    ? `https://image.tmdb.org/t/p/w200${posterPath}`
+    : 'https://apps.alldbx.de/images/default_person.1d043.png';
   const date = releaseDate ? format(new Date(releaseDate), 'MMMM dd, yyyy') : 'NA';
 
   const spin = loading ? <Spin /> : null;
@@ -55,7 +56,7 @@ function MoviesItem(props) {
 
   const cardColor = voteColor(voteAverage);
 
-  const ratingRender = (active === "Rated") ? rating : voteAverage;
+  const ratingRender = active === 'Rated' ? rating : voteAverage;
 
   return (
     <div className="card">
@@ -66,19 +67,19 @@ function MoviesItem(props) {
       <div className="movieInfo">
         <div className="movieTitle">
           <span>{title}</span>
-          <div className="movieRating" style={{backgroundColor: `${cardColor}`}}>
+          <div className="movieRating" style={{ backgroundColor: `${cardColor}` }}>
             <p>{ratingRender}</p>
           </div>
         </div>
         <div className="date">
           <span>{date}</span>
         </div>
-         <div className="movieGenres">{genresToShow}</div>
+        <div className="movieGenres">{genresToShow}</div>
         <div className="movieSinops">
           <span>{overview}</span>
         </div>
         <div className="stars">
-          <Rate count={10} allowHalf defaultValue={ratingRender} onChange={(value) => rateMovie(value, id)}/>
+          <Rate count={10} allowHalf defaultValue={ratingRender} onChange={(value) => rateMovie(value, id)} />
         </div>
       </div>
     </div>
