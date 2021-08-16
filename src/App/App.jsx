@@ -10,6 +10,7 @@ import 'antd/dist/antd.css';
 import './App.css';
 
 function App() {
+
   const [searchString, setSearchString] = useState('');
   const [searchPage, setSearchPage] = useState(1);
   const [activePage, setActivePage] = useState(1);
@@ -18,33 +19,23 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [genres, setGenres] = useState([]);
-
+  const [guestKey, setGuestKey] = useState(localStorage.getItem("guestKey"))
+  const [activeTab, setActiveTab] = useState("Search");
+  const [ratedMovies, setRatedMovies] = useState([]);
 
   const apiBase = 'https://api.themoviedb.org/3/';
   const apiKey = '382c03696044ec7006f5212f1c181827';
 
-  const onError = () => {
-    setError(true);
-  };
-
-  const onSubmit = (label) => {
-    setSearchString(label);
-    setError(false);
-    setLoading(true);
-    setSearchPage(1);
-    setActivePage(1);
-  };
-
-  const pageClick = (num) => {
-    const nextPage = Math.ceil(num / 2);
-
-    if (Math.ceil(activePage / 2) === nextPage) {
-      setActivePage(num);
-      return;
+  useEffect(() => {
+    if (!guestKey) {
+      fetch(`${apiBase}authentication/guest_session/new?api_key=${apiKey}`)
+        .then(res => res.json())
+        .then(obj => {
+          localStorage.setItem('guestKey', obj.guest_session_id);
+          setGuestKey(localStorage.getItem("guestKey"));
+        });
     }
-    setSearchPage(nextPage);
-    setActivePage(num);
-  };
+  }, [guestKey]);
 
   useEffect(() => {
     fetch(`${apiBase}genre/movie/list?api_key=${apiKey}&language=en-US`)
@@ -52,7 +43,6 @@ function App() {
       .then(obj => setGenres(obj.genres)
       );
   }, [])
-
 
   useEffect(() => {
     if (searchString) {
@@ -67,12 +57,57 @@ function App() {
             setLoading(false);
           });
       } catch (err) {
-        onError();
+        setError(true);
       }
     }
   }, [searchString, activePage, searchPage]);
 
+  const rateMovie = (value, id) => {
+    console.log(value, id);
+    fetch(`${apiBase}movie/${id}/rating?api_key=${apiKey}&guest_session_id=${guestKey}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json;charset=utf-8"
+      },
+      body: JSON.stringify({
+        "value": value
+      })
+    }).then(res => console.log(res));
+  };
+
+  const tabClick = (e) => {
+    setActiveTab(e.target.name);
+    if (e.target.name === "Rated") {
+      setLoading(true);
+      fetch(`${apiBase}guest_session/${guestKey}/rated/movies?api_key=${apiKey}&language=en-US&sort_by=created_at.asc}`)
+        .then(res => res.json())
+        .then(obj => {
+          setRatedMovies(obj.results);
+          setLoading(false);
+        });
+    }
+  };
+
+  const pageClick = (num) => {
+    const nextPage = Math.ceil(num / 2);
+
+    if (Math.ceil(activePage / 2) === nextPage) {
+      setActivePage(num);
+      return;
+    }
+    setSearchPage(nextPage);
+    setActivePage(num);
+  };
+
   const list = activePage % 2 === 0 ? [...movieListFull.slice(10)] : [...movieListFull.slice(0, 10)];
+
+  const onSubmit = (label) => {
+    setSearchString(label);
+    setError(false);
+    setLoading(true);
+    setSearchPage(1);
+    setActivePage(1);
+  };
 
   const showError = (
     <Alert
@@ -83,27 +118,37 @@ function App() {
     />
   );
 
-  const pages = loading ? (
+  const listToRender = (activeTab === "Search") ? list : ratedMovies;
+
+  const paginator = (listToRender.length) ?
+    <Pagination current={activePage} total={totalResults} onChange={pageClick} showSizeChanger={false} />
+    : null;
+
+  const pages = (loading ?
     <div className="spin">
       <Spin size="large" />
-    </div>
-  ) : (
+    </div> :
     <div>
       <GenresContext.Provider value={genres}>
-        <MoviesList movieList={list} />
+        <MoviesList movieList={listToRender} rateMovie={rateMovie} active={activeTab}/>
       </GenresContext.Provider>
-
       <div className="paginator">
-        <Pagination current={activePage} total={totalResults} onChange={pageClick} showSizeChanger={false} />
+        {paginator}
       </div>
     </div>
   );
 
+  const showTab = (activeTab === "Search") ?
+    <div>
+      <Search submit={onSubmit} />
+      {pages}
+    </div>
+  : pages;
+
   return (
     <div className="wrapper">
-      <Header />
-      <Search submit={onSubmit} />
-      {error ? showError : pages}
+      <Header tabClick={tabClick} active={activeTab}/>
+      {error ? showError : showTab}
     </div>
   );
 }

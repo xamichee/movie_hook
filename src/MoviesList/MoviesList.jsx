@@ -6,7 +6,7 @@ import MoviesItem from '../MoviesItem/MoviesItem';
 import './MoviesList.css';
 
 function MoviesList(props) {
-  const { movieList } = props;
+  const { movieList, rateMovie, active } = props;
 
   MoviesList.propTypes = {
     movieList: PropTypes.arrayOf(
@@ -19,12 +19,14 @@ function MoviesList(props) {
         genre_ids: PropTypes.arrayOf(PropTypes.number),
       })
     ).isRequired,
+    rateMovie: PropTypes.func.isRequired,
+    active: PropTypes.string.isRequired,
   };
 
   return (
     <div className="movieslist">
       {movieList.map((movie) => (
-        <MoviesItem key={movie.id} movie={movie} />
+        <MoviesItem key={movie.id} movie={movie} rateMovie={rateMovie} active={active} />
       ))}
     </div>
   );

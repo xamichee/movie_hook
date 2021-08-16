@@ -6,36 +6,43 @@ import { format } from 'date-fns';
 
 import './MoviesItem.css';
 import GenresContext from "../App/GenresContext";
+import voteColor from "./voteColor";
 
 function MoviesItem(props) {
-  const { movie } = props;
+  const { movie, rateMovie, active } = props;
 
   const [loading, setLoading] = useState(true);
 
   const {
+    id,
     title,
     release_date: releaseDate,
     poster_path: posterPath,
     overview,
+    rating,
     vote_average: voteAverage,
     genre_ids: genre,
   } = movie;
-  const poster = posterPath
-    ? `https://image.tmdb.org/t/p/w200${posterPath}`
-    : 'https://apps.alldbx.de/images/default_person.1d043.png';
+
+  const poster = posterPath ? `https://image.tmdb.org/t/p/w200${posterPath}`
+    : "https://apps.alldbx.de/images/default_person.1d043.png";
   const date = releaseDate ? format(new Date(releaseDate), 'MMMM dd, yyyy') : 'NA';
 
   const spin = loading ? <Spin /> : null;
 
   MoviesItem.propTypes = {
     movie: PropTypes.shape({
+      id: PropTypes.number,
       title: PropTypes.string,
       release_date: PropTypes.string,
       poster_path: PropTypes.string,
       overview: PropTypes.string,
+      rating: PropTypes.number,
       vote_average: PropTypes.number,
       genre_ids: PropTypes.arrayOf(PropTypes.number),
     }).isRequired,
+    rateMovie: PropTypes.func.isRequired,
+    active: PropTypes.string.isRequired,
   };
 
   const allGenres = useContext(GenresContext);
@@ -46,6 +53,10 @@ function MoviesItem(props) {
     </span>
   ));
 
+  const cardColor = voteColor(voteAverage);
+
+  const ratingRender = (active === "Rated") ? rating : voteAverage;
+
   return (
     <div className="card">
       <div className="moviePoster">
@@ -55,8 +66,8 @@ function MoviesItem(props) {
       <div className="movieInfo">
         <div className="movieTitle">
           <span>{title}</span>
-          <div className="movieRating">
-            <p>{voteAverage}</p>
+          <div className="movieRating" style={{backgroundColor: `${cardColor}`}}>
+            <p>{ratingRender}</p>
           </div>
         </div>
         <div className="date">
@@ -67,7 +78,7 @@ function MoviesItem(props) {
           <span>{overview}</span>
         </div>
         <div className="stars">
-          <Rate count={10} allowHalf defaultValue={voteAverage} />
+          <Rate count={10} allowHalf defaultValue={ratingRender} onChange={(value) => rateMovie(value, id)}/>
         </div>
       </div>
     </div>

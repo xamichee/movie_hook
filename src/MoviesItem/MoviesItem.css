@@ -32,6 +32,7 @@
 
 .movieRating p {
     font-size: 12px;
+    font-weight: bold;
     line-height: 25px;
     text-align: center;
     margin: 0;
