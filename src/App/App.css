@@ -21,3 +21,10 @@
     display: flex;
     justify-content: center;
 }
+
+@media screen and (max-width: 1075px) {
+    .wrapper {
+        width: 420px;
+        padding: 12px;
+    }
+}

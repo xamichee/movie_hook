@@ -1,6 +1,12 @@
 .movieslist {
-    margin: 34px 0;
+    margin: 5px 0;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 35px;
+}
+
+@media screen and (max-width: 1075px) {
+    .movieslist  {
+        grid-template-columns: 1fr;
+    }
 }

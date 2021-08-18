@@ -60,21 +60,33 @@ function MoviesItem(props) {
 
   return (
     <div className="card">
-      <div className="moviePoster">
-        {spin}
-        <img src={poster} alt="poster" onLoad={() => setLoading(false)} />
-      </div>
-      <div className="movieInfo">
-        <div className="movieTitle">
-          <span>{title}</span>
-          <div className="movieRating" style={{ backgroundColor: `${cardColor}` }}>
-            <p>{ratingRender}</p>
+      <div className="cardTop">
+        <div className="moviePoster">
+          {spin}
+          <img src={poster} alt="poster" onLoad={() => setLoading(false)} />
+        </div>
+        <div className="movieInfo">
+          <div className="movieTitle">
+            <span>{title}</span>
+            <div className="movieRating" style={{ backgroundColor: `${cardColor}` }}>
+              <p>{ratingRender}</p>
+            </div>
+          </div>
+          <div className="date">
+            <span>{date}</span>
+          </div>
+          <div className="movieGenres">{genresToShow}</div>
+          <div className="highRes">
+            <div className="movieSinops">
+              <span>{overview}</span>
+            </div>
+            <div className="stars">
+              <Rate count={10} allowHalf defaultValue={ratingRender} onChange={(value) => rateMovie(value, id)} />
+            </div>
           </div>
         </div>
-        <div className="date">
-          <span>{date}</span>
-        </div>
-        <div className="movieGenres">{genresToShow}</div>
+      </div>
+      <div className="lowRes">
         <div className="movieSinops">
           <span>{overview}</span>
         </div>
@@ -83,6 +95,7 @@ function MoviesItem(props) {
         </div>
       </div>
     </div>
+
   );
 }
 
