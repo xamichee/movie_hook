@@ -6,104 +6,83 @@ import MoviesList from '../MoviesList/MoviesList';
 import Search from '../Search/Search';
 import GenresContext from './GenresContext';
 
+import { getGuestKey, rateMovie, getGenres, setPage } from "./api";
+
 import 'antd/dist/antd.css';
 import './App.css';
 
 function App() {
-  const [searchString, setSearchString] = useState('');
-  const [searchPage, setSearchPage] = useState(1);
-  const [activePage, setActivePage] = useState(1);
-  const [movieListFull, setMovieListFull] = useState([]);
-  const [totalResults, setTotalResults] = useState(null);
+
+  const [genres, setGenres] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [genres, setGenres] = useState([]);
-  const [guestKey, setGuestKey] = useState(localStorage.getItem('guestKey'));
   const [activeTab, setActiveTab] = useState('Search');
-  const [ratedMovies, setRatedMovies] = useState([]);
+
+  const [searchString, setSearchString] = useState('');
+  const [searchPage, setSearchPage] = useState(1);
+  const [activeSearchPage, setActiveSearchPage] = useState(1);
+  const [movieListFull, setMovieListFull] = useState([]);
+  const [totalResults, setTotalResults] = useState(null);
+
+  const [ratedMoviesFull, setRatedMoviesFull] = useState([]);
+  const [totalRated, setTotalRated] = useState(null);
+  const [ratedPage, setRatedPage] = useState(1);
+  const [activeRatedPage, setActiveRatedPage] = useState(1);
 
   const apiBase = 'https://api.themoviedb.org/3/';
   const apiKey = '382c03696044ec7006f5212f1c181827';
+  const guestKey = getGuestKey();
+  const isSearchTab = activeTab === "Search";
+
+  if (!genres) getGenres().then(genresList => setGenres(genresList));
 
   useEffect(() => {
-    if (!guestKey) {
-      fetch(`${apiBase}authentication/guest_session/new?api_key=${apiKey}`)
-        .then((res) => res.json())
-        .then((obj) => {
-          localStorage.setItem('guestKey', obj.guest_session_id);
-          setGuestKey(localStorage.getItem('guestKey'));
-        });
-    }
-  }, [guestKey]);
-
-  useEffect(() => {
-    fetch(`${apiBase}genre/movie/list?api_key=${apiKey}&language=en-US`)
-      .then((res) => res.json())
-      .then((obj) => setGenres(obj.genres));
-  }, []);
-
-  useEffect(() => {
-    if (searchString) {
+    if (isSearchTab) {
+      if (searchString) {
+        try {
+          fetch(
+            `${apiBase}search/movie?api_key=${apiKey}&language=en-US&query=${searchString}&page=${searchPage}&include_adult=false`
+          )
+            .then((res) => res.json())
+            .then((body) => {
+              setMovieListFull(body.results);
+              setTotalResults(body.total_results);
+              setLoading(false);
+            });
+        } catch (err) {
+          setError(true);
+        }
+      }
+    } else {
+      setLoading(true);
       try {
-        fetch(
-          `${apiBase}search/movie?api_key=${apiKey}&language=en-US&query=${searchString}&page=${searchPage}&include_adult=false`
-        )
+        fetch(`${apiBase}guest_session/${guestKey}/rated/movies?api_key=${apiKey}&page=${ratedPage}&language=en-US&sort_by=created_at.asc}`)
           .then((res) => res.json())
-          .then((body) => {
-            setMovieListFull([...body.results]);
-            setTotalResults(body.total_results);
+          .then((obj) => {
+            setRatedPage(obj.page);
+            setTotalRated(obj.total_results);
+            setRatedMoviesFull(obj.results);
             setLoading(false);
           });
       } catch (err) {
+        setLoading(false);
         setError(true);
       }
     }
-  }, [searchString, activePage, searchPage]);
+  }, [isSearchTab, searchString, activeSearchPage, searchPage, ratedPage, guestKey]);
 
-  const rateMovie = (value, id) => {
-    fetch(`${apiBase}movie/${id}/rating?api_key=${apiKey}&guest_session_id=${guestKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8',
-      },
-      body: JSON.stringify({
-        value,
-      }),
-    });
-  };
+  const tabClick = (event) => setActiveTab(event.target.name);
 
-  const tabClick = (event) => {
-    setActiveTab(event.target.name);
-    if (event.target.name === 'Rated') {
-      setLoading(true);
-      fetch(`${apiBase}guest_session/${guestKey}/rated/movies?api_key=${apiKey}&language=en-US&sort_by=created_at.asc}`)
-        .then((res) => res.json())
-        .then((obj) => {
-          setRatedMovies(obj.results);
-          setLoading(false);
-        });
-    }
-  };
-
-  const pageClick = (num) => {
-    const nextPage = Math.ceil(num / 2);
-
-    if (Math.ceil(activePage / 2) === nextPage) {
-      setActivePage(num);
-      return;
-    }
-    setSearchPage(nextPage);
-    setActivePage(num);
-  };
-
-  const list = activePage % 2 === 0 ? [...movieListFull.slice(10)] : [...movieListFull.slice(0, 10)];
+  const pageClick = (num) => isSearchTab ?
+    setPage(num, setActiveSearchPage, setSearchPage, activeSearchPage) :
+    setPage(num, setActiveRatedPage, setRatedPage, activeRatedPage);
 
   const onSubmit = (label) => {
     setSearchString(label);
     setError(false);
     setLoading(true);
     setSearchPage(1);
-    setActivePage(1);
+    setActiveSearchPage(1);
   };
 
   const showError = (
@@ -115,10 +94,14 @@ function App() {
     />
   );
 
-  const listToRender = activeTab === 'Search' ? list : ratedMovies;
+  const {filmsToRender, totalToRender, activePage} = isSearchTab ?
+    { filmsToRender: movieListFull, totalToRender: totalResults, activePage: activeSearchPage } :
+    { filmsToRender: ratedMoviesFull, totalToRender: totalRated, activePage: activeRatedPage};
 
-  const paginator = listToRender.length ? (
-    <Pagination current={activePage} total={totalResults} onChange={pageClick} showSizeChanger={false} />
+  const list = activePage % 2 === 0 ? [...filmsToRender.slice(10)] : [...filmsToRender.slice(0, 10)];
+
+  const paginator = filmsToRender.length ? (
+    <Pagination current={activePage} total={totalToRender} onChange={pageClick} showSizeChanger={false} />
   ) : null;
 
   const pages = loading ? (
@@ -128,14 +111,13 @@ function App() {
   ) : (
     <div>
       <GenresContext.Provider value={genres}>
-        <MoviesList movieList={listToRender} rateMovie={rateMovie} active={activeTab} />
+        <MoviesList movieList={list} rateMovie={rateMovie} active={activeTab} />
       </GenresContext.Provider>
       <div className="paginator">{paginator}</div>
     </div>
   );
 
-  const showTab =
-    activeTab === 'Search' ? (
+  const showTab = isSearchTab ? (
       <div>
         <Search submit={onSubmit} />
         {pages}
