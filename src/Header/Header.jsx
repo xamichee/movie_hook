@@ -9,18 +9,18 @@ export default function Header({ tabClick, active }) {
     active: PropTypes.string.isRequired,
   };
 
-  const classSearch = active === 'Search' ? 'tabButton chosen' : 'tabButton';
-  const classRated = active === 'Rated' ? 'tabButton chosen' : 'tabButton';
+  const className = { };
+  className[active] = 'chosen';
 
   return (
     <div className="header">
       <div>
-        <button className={classSearch} type="button" onClick={tabClick} name="Search">
+        <button className={className.Search} type="button" onClick={tabClick} name="Search">
           Search
         </button>
       </div>
       <div>
-        <button className={classRated} type="button" onClick={tabClick} name="Rated">
+        <button className={className.Rated} type="button" onClick={tabClick} name="Rated">
           Rated
         </button>
       </div>

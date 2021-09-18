@@ -1,5 +1,5 @@
 .movieslist {
-    margin: 5px 0;
+    margin: 20px 0;
     display: grid;
     grid-template-columns: 454px 454px;
     gap: 35px;

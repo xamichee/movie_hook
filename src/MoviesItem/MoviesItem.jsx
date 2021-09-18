@@ -5,8 +5,8 @@ import { Rate, Spin } from 'antd';
 import { format } from 'date-fns';
 
 import './MoviesItem.css';
-import GenresContext from '../App/GenresContext';
-import voteColor from './voteColor';
+import { GenresContext } from '../GenresContext/GenresContext';
+import voteColor from '../voteColor/voteColor';
 
 function MoviesItem(props) {
   const { movie, rateMovie, active } = props;

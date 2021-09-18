@@ -1,24 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { Pagination, Alert, Spin } from 'antd';
+import React, { useState, useEffect } from "react";
+import { Pagination, Spin } from "antd";
 
-import Header from '../Header/Header';
-import MoviesList from '../MoviesList/MoviesList';
-import Search from '../Search/Search';
-import GenresContext from './GenresContext';
+import Header from "../Header/Header";
+import MoviesList from "../MoviesList/MoviesList";
+import Search from "../Search/Search";
+import Error from "../Error/Error";
+import ProvideContext from "../GenresContext/GenresContext";
 
-import { getGuestKey, rateMovie, getGenres, setPage } from "./api";
 
-import 'antd/dist/antd.css';
-import './App.css';
+import MovieApi from "../Api/MovieApi";
 
-function App() {
+import "antd/dist/antd.css";
+import "./App.css";
 
-  const [genres, setGenres] = useState(null);
+export default function App() {
+
+  const { rateMovie, setPage } = new MovieApi();
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [activeTab, setActiveTab] = useState('Search');
+  const [activeTab, setActiveTab] = useState("Search");
 
-  const [searchString, setSearchString] = useState('');
+  const [searchString, setSearchString] = useState("");
   const [searchPage, setSearchPage] = useState(1);
   const [activeSearchPage, setActiveSearchPage] = useState(1);
   const [movieListFull, setMovieListFull] = useState([]);
@@ -29,49 +32,44 @@ function App() {
   const [ratedPage, setRatedPage] = useState(1);
   const [activeRatedPage, setActiveRatedPage] = useState(1);
 
-  const apiBase = 'https://api.themoviedb.org/3/';
-  const apiKey = '382c03696044ec7006f5212f1c181827';
-  const guestKey = getGuestKey();
   const isSearchTab = activeTab === "Search";
 
-  if (!genres) getGenres().then(genresList => setGenres(genresList));
-
   useEffect(() => {
+    const { searchMovies, getRated } = new MovieApi();
     if (isSearchTab) {
       if (searchString) {
-        try {
-          fetch(
-            `${apiBase}search/movie?api_key=${apiKey}&language=en-US&query=${searchString}&page=${searchPage}&include_adult=false`
-          )
-            .then((res) => res.json())
-            .then((body) => {
-              setMovieListFull(body.results);
-              setTotalResults(body.total_results);
-              setLoading(false);
-            });
-        } catch (err) {
-          setError(true);
-        }
+        searchMovies(searchString, searchPage)
+          .then((body) => {
+            setMovieListFull(body.results);
+            setTotalResults(body.total_results);
+            if (body.total_results === 0) setError("Ничего не найдено, увы...");
+            setLoading(false);
+          })
+          .catch(() => {
+            setLoading(false);
+            setError("Не удалось загрузить фильмы.");
+          });
       }
     } else {
       setLoading(true);
-      try {
-        fetch(`${apiBase}guest_session/${guestKey}/rated/movies?api_key=${apiKey}&page=${ratedPage}&language=en-US&sort_by=created_at.asc}`)
-          .then((res) => res.json())
-          .then((obj) => {
-            setRatedPage(obj.page);
-            setTotalRated(obj.total_results);
-            setRatedMoviesFull(obj.results);
-            setLoading(false);
-          });
-      } catch (err) {
-        setLoading(false);
-        setError(true);
-      }
+      getRated(ratedPage)
+        .then((obj) => {
+          setRatedPage(obj.page);
+          setTotalRated(obj.total_results);
+          setRatedMoviesFull(obj.results);
+          setLoading(false);
+        })
+        .catch(() => {
+          setLoading(false);
+          setError("Не удалось загрузить фильмы.");
+        });
     }
-  }, [isSearchTab, searchString, activeSearchPage, searchPage, ratedPage, guestKey]);
+  }, [isSearchTab, searchString, searchPage, ratedPage]);
 
-  const tabClick = (event) => setActiveTab(event.target.name);
+  const tabClick = (event) => {
+    setActiveTab(event.target.name);
+    setError(false);
+  };
 
   const pageClick = (num) => isSearchTab ?
     setPage(num, setActiveSearchPage, setSearchPage, activeSearchPage) :
@@ -85,18 +83,11 @@ function App() {
     setActiveSearchPage(1);
   };
 
-  const showError = (
-    <Alert
-      className="alert"
-      message="Error Text"
-      description="Something goes wrong! But truth is out there..."
-      type="error"
-    />
-  );
+  //Нужно сделать отдельный компонент Rated и разделить всю логику между Search и Rated
 
-  const {filmsToRender, totalToRender, activePage} = isSearchTab ?
+  const { filmsToRender, totalToRender, activePage } = isSearchTab ?
     { filmsToRender: movieListFull, totalToRender: totalResults, activePage: activeSearchPage } :
-    { filmsToRender: ratedMoviesFull, totalToRender: totalRated, activePage: activeRatedPage};
+    { filmsToRender: ratedMoviesFull, totalToRender: totalRated, activePage: activeRatedPage };
 
   const list = activePage % 2 === 0 ? [...filmsToRender.slice(10)] : [...filmsToRender.slice(0, 10)];
 
@@ -104,34 +95,23 @@ function App() {
     <Pagination current={activePage} total={totalToRender} onChange={pageClick} showSizeChanger={false} />
   ) : null;
 
-  const pages = loading ? (
-    <div className="spin">
-      <Spin size="large" />
-    </div>
-  ) : (
+  const page =
     <div>
-      <GenresContext.Provider value={genres}>
-        <MoviesList movieList={list} rateMovie={rateMovie} active={activeTab} />
-      </GenresContext.Provider>
+      <MoviesList movieList={list} rateMovie={rateMovie} active={activeTab} />
       <div className="paginator">{paginator}</div>
-    </div>
-  );
+    </div>;
 
-  const showTab = isSearchTab ? (
-      <div>
-        <Search submit={onSubmit} />
-        {pages}
-      </div>
-    ) : (
-      pages
-    );
 
   return (
     <div className="wrapper">
-      <Header tabClick={tabClick} active={activeTab} />
-      {error ? showError : showTab}
+      <ProvideContext>
+        <Header tabClick={tabClick} active={activeTab} />
+        {isSearchTab && <Search submit={onSubmit} />}
+        {error && <Error message={error} />}
+        {!error && loading && <Spin className="spin" size="large" />}
+        {!error && !loading && page}
+      </ProvideContext>
     </div>
   );
 }
 
-export default App;
