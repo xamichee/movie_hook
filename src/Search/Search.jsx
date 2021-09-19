@@ -8,7 +8,7 @@ function Search(props) {
   const { submit } = props;
 
   Search.propTypes = {
-    submit: PropTypes.func.isRequired
+    submit: PropTypes.func.isRequired,
   };
 
   const onLabelChange = (event) => {
@@ -17,9 +17,7 @@ function Search(props) {
   };
 
   return (
-    <form
-      onChange={debounce((event) => onLabelChange(event), 1000)}
-      onSubmit={(event) => event.preventDefault()}>
+    <form onChange={debounce((event) => onLabelChange(event), 1000)} onSubmit={(event) => event.preventDefault()}>
       <Input placeholder="Type to search" />
     </form>
   );

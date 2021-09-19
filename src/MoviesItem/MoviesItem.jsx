@@ -95,7 +95,6 @@ function MoviesItem(props) {
         </div>
       </div>
     </div>
-
   );
 }
 

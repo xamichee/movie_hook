@@ -9,7 +9,7 @@ export default function Header({ tabClick, active }) {
     active: PropTypes.string.isRequired,
   };
 
-  const className = { };
+  const className = {};
   className[active] = 'chosen';
 
   return (

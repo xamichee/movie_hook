@@ -1,27 +1,24 @@
-import React, { useState, useEffect } from "react";
-import { Pagination, Spin } from "antd";
+import React, { useState, useEffect } from 'react';
+import { Pagination, Spin } from 'antd';
 
-import Header from "../Header/Header";
-import MoviesList from "../MoviesList/MoviesList";
-import Search from "../Search/Search";
-import Error from "../Error/Error";
-import ProvideContext from "../GenresContext/GenresContext";
+import Header from '../Header/Header';
+import MoviesList from '../MoviesList/MoviesList';
+import Search from '../Search/Search';
+import Error from '../Error/Error';
 
+import MovieApi from '../api/MovieApi';
 
-import MovieApi from "../Api/MovieApi";
-
-import "antd/dist/antd.css";
-import "./App.css";
+import 'antd/dist/antd.css';
+import './App.css';
 
 export default function App() {
-
   const { rateMovie, setPage } = new MovieApi();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [activeTab, setActiveTab] = useState("Search");
+  const [activeTab, setActiveTab] = useState('Search');
 
-  const [searchString, setSearchString] = useState("");
+  const [searchString, setSearchString] = useState('');
   const [searchPage, setSearchPage] = useState(1);
   const [activeSearchPage, setActiveSearchPage] = useState(1);
   const [movieListFull, setMovieListFull] = useState([]);
@@ -32,7 +29,7 @@ export default function App() {
   const [ratedPage, setRatedPage] = useState(1);
   const [activeRatedPage, setActiveRatedPage] = useState(1);
 
-  const isSearchTab = activeTab === "Search";
+  const isSearchTab = activeTab === 'Search';
 
   useEffect(() => {
     const { searchMovies, getRated } = new MovieApi();
@@ -42,12 +39,12 @@ export default function App() {
           .then((body) => {
             setMovieListFull(body.results);
             setTotalResults(body.total_results);
-            if (body.total_results === 0) setError("Ничего не найдено, увы...");
+            if (body.total_results === 0) setError('Ничего не найдено, увы...');
             setLoading(false);
           })
           .catch(() => {
             setLoading(false);
-            setError("Не удалось загрузить фильмы.");
+            setError('Не удалось загрузить фильмы.');
           });
       }
     } else {
@@ -61,7 +58,7 @@ export default function App() {
         })
         .catch(() => {
           setLoading(false);
-          setError("Не удалось загрузить фильмы.");
+          setError('Не удалось загрузить фильмы.');
         });
     }
   }, [isSearchTab, searchString, searchPage, ratedPage]);
@@ -71,9 +68,10 @@ export default function App() {
     setError(false);
   };
 
-  const pageClick = (num) => isSearchTab ?
-    setPage(num, setActiveSearchPage, setSearchPage, activeSearchPage) :
-    setPage(num, setActiveRatedPage, setRatedPage, activeRatedPage);
+  const pageClick = (num) =>
+    isSearchTab
+      ? setPage(num, setActiveSearchPage, setSearchPage, activeSearchPage)
+      : setPage(num, setActiveRatedPage, setRatedPage, activeRatedPage);
 
   const onSubmit = (label) => {
     setSearchString(label);
@@ -83,11 +81,9 @@ export default function App() {
     setActiveSearchPage(1);
   };
 
-  //Нужно сделать отдельный компонент Rated и разделить всю логику между Search и Rated
-
-  const { filmsToRender, totalToRender, activePage } = isSearchTab ?
-    { filmsToRender: movieListFull, totalToRender: totalResults, activePage: activeSearchPage } :
-    { filmsToRender: ratedMoviesFull, totalToRender: totalRated, activePage: activeRatedPage };
+  const { filmsToRender, totalToRender, activePage } = isSearchTab
+    ? { filmsToRender: movieListFull, totalToRender: totalResults, activePage: activeSearchPage }
+    : { filmsToRender: ratedMoviesFull, totalToRender: totalRated, activePage: activeRatedPage };
 
   const list = activePage % 2 === 0 ? [...filmsToRender.slice(10)] : [...filmsToRender.slice(0, 10)];
 
@@ -95,23 +91,20 @@ export default function App() {
     <Pagination current={activePage} total={totalToRender} onChange={pageClick} showSizeChanger={false} />
   ) : null;
 
-  const page =
+  const page = (
     <div>
       <MoviesList movieList={list} rateMovie={rateMovie} active={activeTab} />
       <div className="paginator">{paginator}</div>
-    </div>;
-
+    </div>
+  );
 
   return (
     <div className="wrapper">
-      <ProvideContext>
-        <Header tabClick={tabClick} active={activeTab} />
-        {isSearchTab && <Search submit={onSubmit} />}
-        {error && <Error message={error} />}
-        {!error && loading && <Spin className="spin" size="large" />}
-        {!error && !loading && page}
-      </ProvideContext>
+      <Header tabClick={tabClick} active={activeTab} />
+      {isSearchTab && <Search submit={onSubmit} />}
+      {error && <Error message={error} />}
+      {!error && loading && <Spin className="spin" size="large" />}
+      {!error && !loading && page}
     </div>
   );
 }
-
