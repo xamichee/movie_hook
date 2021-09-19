@@ -17,12 +17,12 @@ function Header({ location }) {
   return (
     <div className="header">
       <div className={className.search}>
-        <Link to='/search'>
+        <Link style={{color: 'inherit'}} to='/search'>
           Search
         </Link>
       </div>
       <div className={className.rated}>
-        <Link to='/rated'>
+        <Link style={{color: 'inherit'}} to='/rated'>
           Rated
         </Link>
       </div>
