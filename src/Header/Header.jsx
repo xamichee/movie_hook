@@ -1,29 +1,33 @@
 import React from 'react';
+import { Link, withRouter } from "react-router-dom";
+
 import PropTypes from 'prop-types';
 
 import './Header.css';
 
-export default function Header({ tabClick, active }) {
+function Header({ location }) {
   Header.propTypes = {
-    tabClick: PropTypes.func.isRequired,
-    active: PropTypes.string.isRequired,
+    location: PropTypes.shape({
+      pathname: PropTypes.string}).isRequired
   };
 
   const className = {};
-  className[active] = 'chosen';
+  className[location.pathname.slice(1)] = 'chosen';
 
   return (
     <div className="header">
-      <div>
-        <button className={className.Search} type="button" onClick={tabClick} name="Search">
+      <div className={className.search}>
+        <Link to='/search'>
           Search
-        </button>
+        </Link>
       </div>
-      <div>
-        <button className={className.Rated} type="button" onClick={tabClick} name="Rated">
+      <div className={className.rated}>
+        <Link to='/rated'>
           Rated
-        </button>
+        </Link>
       </div>
     </div>
   );
 }
+
+export default withRouter(Header);

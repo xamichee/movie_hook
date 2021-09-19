@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { Rate, Spin } from 'antd';
@@ -9,7 +10,7 @@ import { GenresContext } from '../GenresContext/GenresContext';
 import voteColor from '../voteColor/voteColor';
 
 function MoviesItem(props) {
-  const { movie, rateMovie, active } = props;
+  const { movie, rateMovie, location } = props;
 
   const [loading, setLoading] = useState(true);
 
@@ -43,7 +44,8 @@ function MoviesItem(props) {
       genre_ids: PropTypes.arrayOf(PropTypes.number),
     }).isRequired,
     rateMovie: PropTypes.func.isRequired,
-    active: PropTypes.string.isRequired,
+      location: PropTypes.shape({
+        pathname: PropTypes.string}).isRequired
   };
 
   const allGenres = useContext(GenresContext);
@@ -56,7 +58,7 @@ function MoviesItem(props) {
 
   const cardColor = voteColor(voteAverage);
 
-  const ratingRender = active === 'Rated' ? rating : voteAverage;
+  const ratingRender = location.pathname.slice(1) === 'rated' ? rating : voteAverage;
 
   return (
     <div className="card">
@@ -98,4 +100,4 @@ function MoviesItem(props) {
   );
 }
 
-export default MoviesItem;
+export default withRouter(MoviesItem);

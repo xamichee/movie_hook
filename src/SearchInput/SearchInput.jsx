@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import { Input } from 'antd';
 import { debounce } from 'lodash';
 
-function Search(props) {
+function SearchInput(props) {
   const { submit } = props;
 
-  Search.propTypes = {
+  SearchInput.propTypes = {
     submit: PropTypes.func.isRequired,
   };
 
@@ -23,4 +23,4 @@ function Search(props) {
   );
 }
 
-export default Search;
+export default SearchInput;
