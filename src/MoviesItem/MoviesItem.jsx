@@ -5,12 +5,16 @@ import PropTypes from 'prop-types';
 import { Rate, Spin } from 'antd';
 import { format } from 'date-fns';
 
-import './MoviesItem.css';
+import MovieApi from "../api/MovieApi";
 import { GenresContext } from '../GenresContext/GenresContext';
 import voteColor from '../voteColor/voteColor';
 
+import './MoviesItem.css';
+
 function MoviesItem(props) {
-  const { movie, rateMovie, location } = props;
+  const { movie, location } = props;
+
+  const { rateMovie } = new MovieApi();
 
   const [loading, setLoading] = useState(true);
 
@@ -30,23 +34,7 @@ function MoviesItem(props) {
     : 'https://apps.alldbx.de/images/default_person.1d043.png';
   const date = releaseDate ? format(new Date(releaseDate), 'MMMM dd, yyyy') : 'NA';
 
-  const spin = loading ? <Spin /> : null;
-
-  MoviesItem.propTypes = {
-    movie: PropTypes.shape({
-      id: PropTypes.number,
-      title: PropTypes.string,
-      release_date: PropTypes.string,
-      poster_path: PropTypes.string,
-      overview: PropTypes.string,
-      rating: PropTypes.number,
-      vote_average: PropTypes.number,
-      genre_ids: PropTypes.arrayOf(PropTypes.number),
-    }).isRequired,
-    rateMovie: PropTypes.func.isRequired,
-      location: PropTypes.shape({
-        pathname: PropTypes.string}).isRequired
-  };
+  const spin = loading ? <Spin className='spin' /> : null;
 
   const allGenres = useContext(GenresContext);
 
@@ -101,3 +89,18 @@ function MoviesItem(props) {
 }
 
 export default withRouter(MoviesItem);
+
+MoviesItem.propTypes = {
+  movie: PropTypes.shape({
+    id: PropTypes.number,
+    title: PropTypes.string,
+    release_date: PropTypes.string,
+    poster_path: PropTypes.string,
+    overview: PropTypes.string,
+    rating: PropTypes.number,
+    vote_average: PropTypes.number,
+    genre_ids: PropTypes.arrayOf(PropTypes.number),
+  }).isRequired,
+  location: PropTypes.shape({
+    pathname: PropTypes.string}).isRequired
+};

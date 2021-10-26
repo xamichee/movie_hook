@@ -29,7 +29,7 @@ export default class MovieApi {
   getRated = (page) => {
     const guestKey = this.getGuestKey();
     return fetch(
-      `${this.apiBase}guest_session/${guestKey}/rated/movies?api_key=${this.apiKey}&page=${page}&language=en-US&sort_by=created_at.asc}`
+      `${this.apiBase}guest_session/${guestKey}/rated/movies?api_key=${this.apiKey}&page=${page}&language=en-US&sort_by=created_at.asc`
     ).then((res) => res.json());
   };
 
